@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, String
 class Player(Base):
     __tablename__ = 'player'
 
-    id = Column(Integer, primary_key=True,index=True)
-    name = Column(String)
+    name = Column(String, primary_key=True )
     score = Column(Integer)
     status = Column(String)
