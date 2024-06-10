@@ -61,7 +61,8 @@ async def create_player(player: PlayerBase, db: db_dependency):
         db.refresh(db_player)
         return db_player
     
-    return player
+
+    return playerUP
 
     
     
