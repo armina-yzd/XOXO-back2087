@@ -6,4 +6,3 @@ class Player(Base):
 
     name = Column(String, primary_key=True )
     score = Column(Integer)
-    status = Column(String)

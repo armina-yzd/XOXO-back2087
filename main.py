@@ -27,15 +27,16 @@ app.add_middleware(
 class PlayerBase(BaseModel):
     name: str
     score: int
-    status: str
 
 class PlayerModel(PlayerBase):
     class Config:
         from_attributes = True
 
-class playerUpdate(BaseModel):
-    score: int | None = None
-    status: str | None = None
+
+
+class PlayerUpdate(BaseModel):
+    name: str 
+    status: str 
 
 def get_db():
     db =  SessionLocal()
@@ -49,39 +50,35 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 models.Base.metadata.create_all(bind= engine)
 
-@app.post("/player/",response_model=PlayerModel)
-async def create_player(player: PlayerBase, db: db_dependency):
+@app.post("/player/",response_model=PlayerUpdate)
+async def create_player(player: PlayerUpdate, db: db_dependency):
     playerUP = db.query(models.Player).filter_by(name=player.name).first()
     if playerUP is None:
-        player.status="NONE"
-        player.score = 0
-        db_player =  models.Player(**player.dict())
-        db.add(db_player)
+        playerU = models.Player(name=player.name, score=0)
+        db.add(playerU)
         db.commit()
-        db.refresh(db_player)
-        return db_player
-    
+        db.refresh(playerU)
 
-    return playerUP
+    return player
 
     
     
-@app.put("/player/{playerName}", response_model=PlayerModel)
-async def updatePlayer(playerName: str, player: PlayerBase, db: db_dependency):
-    playerUP = db.query(models.Player).filter_by(name=playerName).first()
+
+@app.put("/player/",response_model=PlayerUpdate)
+async def updatePlayer( player: PlayerUpdate, db: db_dependency):
+    playerUP = db.query(models.Player).filter_by(name=player.name).first()
     if playerUP is None:
         raise HTTPException(status_code=404, detail="Player not found")
     
     if(player.status == "WIN"):
-        player.score +=1
+        playerUP.score +=1
     elif(player.status == "LOSE"):
-        player.score -=1
+        playerUP.score -=1
 
-    playerUP.score = player.score
-    playerUP.status = "NONE"
     db.commit()
     db.refresh(playerUP)
-    return playerUP
+
+    return player
 
 
 
